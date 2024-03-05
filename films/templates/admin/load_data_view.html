@@ -1,0 +1,18 @@
+<!-- admin/load_data_view.html -->
+{% extends 'admin/base_site.html' %}
+
+{% block content %}
+    <h2>Загрузка данных</h2>
+    <form method="post" action="{% url 'load_data_action' %}">
+        {% csrf_token %}
+        <button type="submit" class="button">Загрузить данные в базу</button>
+    </form>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+{% endblock %}

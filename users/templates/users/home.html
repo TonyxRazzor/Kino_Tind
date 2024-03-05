@@ -1,0 +1,21 @@
+<!-- users/templates/users/home.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Добро пожаловать на главную страницу</h2>
+
+    {% if user.is_authenticated %}
+        <p>Привет, {{ user.username }}!</p>
+        <a href="{% url 'users:logout' %}">Выйти</a>
+        <!-- Здесь вы можете добавить другие приветственные сообщения для авторизованного пользователя -->
+    {% else %}
+        <h3>Авторизация</h3>
+        <form method="post" action="{% url 'users:login' %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Войти</button>
+        </form>
+
+        <p>Еще не зарегистрированы? <a href="{% url 'users:register' %}">Зарегистрируйтесь</a></p>
+    {% endif %}
+{% endblock %}

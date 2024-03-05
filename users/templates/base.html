@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}My Site{% endblock %}</title>
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="{% url 'users:home' %}">Home</a></li>
+            <li><a href="{% url 'users:partner_selection' %}">Partner Selection</a></li>
+            {% if partner %}
+                <li><a href="{% url 'users:preferences' partner_id=partner.id %}">Preferences</a></li>
+            {% else %}
+                <li><a href="{% url 'users:preferences' partner_id=0 %}">Preferences</a></li>
+            {% endif %}
+            <li><a href="{% url 'users:film_selection' %}">Film Selection</a></li>
+            
+
+            <li><a href="{% url 'users:result' %}">Result</a></li>
+            <li><a href="{% url 'users:history' %}">History</a></li>
+            <li><a href="{% url 'users:register' %}">Register</a></li>
+            {% if user.is_authenticated %}
+                <li><a href="{% url 'users:logout' %}">Logout</a></li>
+            {% else %}
+                <li><a href="{% url 'users:login' %}">Login</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+
+<div>
+    {% block content %}{% endblock %}
+</div>
+<div class="notifications">
+    {% for notification in notifications %}
+        <div class="notification">{{ notification.message }}</div>
+    {% endfor %}
+</div>
+</body>
+</html>

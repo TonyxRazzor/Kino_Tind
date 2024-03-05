@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Результат подтверждения совпадения</h2>
+    <p>Matched: {{ matched }}</p>
+    {% if matched %}
+        <p>Фильм совпал с выбором другого пользователя!</p>
+        <p>Название фильма: {{ matching_film.name }}</p>
+        <p>Год выпуска: {{ matching_film.year }}</p>
+        <p>Жанр:
+            {% for genre in matching_film.genre.all %}
+                {{ genre.name }}
+                {% if not forloop.last %}, {% endif %}
+            {% endfor %}
+        </p>
+        <p>Страна: {{ matching_film.country }}</p>
+        {% if matching_film.poster %}
+            <img src="{{ matching_film.poster.url }}" alt="{{ matching_film.name }} Poster">
+        {% endif %}
+    {% else %}
+        <p>{{ error_message }}</p>
+    {% endif %}
+{% endblock %}

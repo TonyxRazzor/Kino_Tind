@@ -1,0 +1,13 @@
+<!-- users/templates/users/result.html -->
+{% extends 'base.html' %}
+
+{% block content %}
+    <h2>Результат совпадения!</h2>
+    <p>Оба пользователи выбрали фильм: {{ matching_film.name }}</p>
+    
+    <form method="post" action="{% url 'users:confirm_match' %}">
+        {% csrf_token %}
+        <!-- Добавьте форму подтверждения здесь, если необходимо -->
+        <button type="submit">Подтвердить</button>
+    </form>
+{% endblock %}
