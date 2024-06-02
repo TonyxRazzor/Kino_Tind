@@ -7,7 +7,7 @@
         <div id="film-container">
             {% for item in films_with_genres %}
                 {% with film=item.film %}
-                    <div class="film-card" data-film-id="{{ film.id }}">
+                    <div class="film-card film-data" data-film-id="{{ film.id }}">
                         <h3>{{ film.name }}</h3>
                         <p>Год выпуска: {{ film.year }}</p>
                         <p>Жанр: 
@@ -30,8 +30,8 @@
                                     <p>Вы отказались от этого фильма</p>
                                 {% endif %}
                             {% else %}
-                                <button class="btn btn-success select-film" data-film-id="{{ film.id }}" data-selection="yes">Да</button>
-                                <button class="btn btn-danger select-film" data-film-id="{{ film.id }}" data-selection="no">Нет</button>
+                                <button class="btn btn-success select-film" data-film-id="{{ film.id }}" data-selection="yes" data-url="{% url 'users:confirm_match' %}">Да</button>
+                                <button class="btn btn-danger select-film" data-film-id="{{ film.id }}" data-selection="no" data-url="{% url 'users:confirm_match' %}">Нет</button>
                             {% endif %}
                         </div>
                     </div>
@@ -41,65 +41,88 @@
     {% else %}
         <p>Извините, нет доступных фильмов.</p>
     {% endif %}
+{% endblock %}
 
-    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
-    <script>
-        $(document).ready(function() {
-            // Создаем переменную-флаг для отслеживания выполнения обработчика
-            let isProcessing = false;
+{% block extra_js %}
+<script>
+    $(document).ready(function() {
+        checkForNotifications();
 
-            $('.select-film').click(function() {
-                // Проверяем, выполняется ли уже обработчик
-                if (isProcessing) {
-                    return; // Если да, выходим из функции
-                }
+        $('.select-film').on('click', function() {
+            var filmId = $(this).data('film-id');
+            var selection = $(this).data('selection');
+            var url = $(this).data('url');
 
-                // Устанавливаем флаг в true, чтобы предотвратить повторное выполнение обработчика
-                isProcessing = true;
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: {
+                    'film_id': filmId,
+                    'selection': selection,
+                    'csrfmiddlewaretoken': '{{ csrf_token }}'  // Добавление CSRF токена
+                },
+                success: function(response) {
+                    if (response.success) {
+                        window.location.href = '/users/confirm_match_result/' + response.film_id;
 
-                const filmId = $(this).data('film-id');
-                const selection = $(this).data('selection');
-                const csrfToken = '{{ csrf_token }}';
+                        if ('Notification' in window) {
+                            Notification.requestPermission().then(function(permission) {
+                                if (permission === 'granted') {
+                                    var notification = new Notification('Найдено совпадение!', {
+                                        body: 'Нажмите, чтобы увидеть детали.',
+                                        data: {
+                                            url: '/users/confirm_match_result/' + response.film_id
+                                        }
+                                    });
 
-                // Собираем данные о фильмах и жанрах из DOM
-                const filmsWithGenres = [];
-                $('.film-data').each(function() {
-                    const filmId = $(this).data('film-id');
-                    const genres = $(this).data('genres');
-                    filmsWithGenres.push({filmId: filmId, genres: genres});
-                });
-
-                const data = {
-                    film_id: filmId,
-                    selection: selection,
-                    films_with_genres: JSON.stringify(filmsWithGenres), // Преобразуем в JSON
-                    csrfmiddlewaretoken: csrfToken,
-                };
-
-                $.ajax({
-                    type: 'POST',
-                    url: '{% url "users:confirm_match" %}',
-                    data: data,
-                    success: function(response) {
-                        console.log("Success response:", response);
-                        if (response.success) {
-                            $('#film-container').html(response.films_with_genres);
-                        } else {
-                            alert('Произошла ошибка. Пожалуйста, попробуйте позже else.');
+                                    notification.onclick = function(event) {
+                                        event.preventDefault();
+                                        window.open(notification.data.url, '_blank');
+                                    };
+                                }
+                            });
                         }
-                        // Устанавливаем флаг в false после завершения обработки
-                        isProcessing = false;
-                    },
-                    error: function(error) {
-                        console.log("Error:", error);
-                        alert('Произошла ошибка. Пожалуйста, попробуйте позже error.');
-                        // Устанавливаем флаг в false после завершения обработки
-                        isProcessing = false;
+                    } else {
+                        alert('Совпадение не найдено. Пожалуйста, выберите другой фильм.');
+                        location.reload();
                     }
-                });
+                },
+                error: function(xhr, status, error) {
+                    console.error('Ошибка:', error);
+                }
             });
         });
 
-    
-    </script>
+        function checkForNotifications() {
+            $.get("{% url 'users:check_notifications' %}", function(data) {
+                if (data.notifications.length > 0) {
+                    data.notifications.forEach(function(notification) {
+                        alert(notification.title + ": " + notification.body);
+                        // Дополнительно можно перенаправить пользователя на URL уведомления
+                        if (notification.url) {
+                            window.location.href = notification.url;
+                        }
+                    });
+                }
+            });
+        }
+
+        setInterval(checkForNotifications, 5000); // Проверка уведомлений каждые 5 секунд
+    });
+
+    function checkMatch() {
+        fetch("{% url 'users:check_user_match' %}")
+            .then(response => response.json())
+            .then(data => {
+                if (data.matched) {
+                    alert(`Найдено совпадение для фильма ${data.title}`);
+                    window.location.href = `/users/confirm_match_result/${data.film_id}/`;
+                }
+            })
+            .catch(error => console.error('Error:', error));
+    }
+
+    setInterval(checkMatch, 5000);
+</script>
 {% endblock %}
+

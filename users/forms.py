@@ -8,9 +8,17 @@ from films.models import FilmChoice, Genre, Film
 class RegistrationForm(UserCreationForm):
     class Meta(UserCreationForm.Meta):
         model = User
-        fields = UserCreationForm.Meta.fields + ('phone_number', 'photo')
+        fields = ('username', 'phone_number', 'photo', 'password1', 'password2')
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['username'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Username'})
+        self.fields['phone_number'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Phone number'})
+        self.fields['photo'].widget.attrs.update({'class': 'form-control'})
+        self.fields['password1'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Password'})
+        self.fields['password2'].widget.attrs.update({'class': 'form-control', 'placeholder': 'Confirm Password'})
 
-
+    
 class PartnerSelectionForm(forms.Form):
     partner = forms.ModelChoiceField(queryset=User.objects.all(), empty_label="Выберите партнера")
 
@@ -59,7 +67,13 @@ class FilmChoiceForm(forms.ModelForm):
             self.save_m2m()  # Сохранение ManyToMany связей
         return instance
 
+class UserProfileForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['username', 'photo']
 
+class ProfilePhotoForm(forms.Form):
+    photo = forms.ImageField()
 
 class ResultForm(forms.Form):
     # Добавьте поля, если необходимо

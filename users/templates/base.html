@@ -11,33 +11,141 @@
     <nav>
         <ul>
             <li><a href="{% url 'users:home' %}">Home</a></li>
-            <li><a href="{% url 'users:partner_selection' %}">Partner Selection</a></li>
-            {% if partner %}
-                <li><a href="{% url 'users:preferences' partner_id=partner.id %}">Preferences</a></li>
-            {% else %}
-                <li><a href="{% url 'users:preferences' partner_id=0 %}">Preferences</a></li>
-            {% endif %}
-            <li><a href="{% url 'users:film_selection' %}">Film Selection</a></li>
-            
-
-            <li><a href="{% url 'users:result' %}">Result</a></li>
-            <li><a href="{% url 'users:history' %}">History</a></li>
-            <li><a href="{% url 'users:register' %}">Register</a></li>
             {% if user.is_authenticated %}
+                <li><a href="{% url 'users:user_profile' user.id %}">Profile</a></li>
+                <li><a href="{% url 'users:partner_selection' %}">Partner Selection</a></li>
+                {% if partner %}
+                    <li><a href="{% url 'users:preferences' partner_id=partner.id %}">Preferences</a></li>
+                {% else %}
+                    <li><a href="{% url 'users:preferences' partner_id=0 %}">Preferences</a></li>
+                {% endif %}
+                <li><a href="{% url 'users:film_selection' %}">Film Selection</a></li>
+                <li><a href="{% url 'users:result' %}">Result</a></li>
+                <li><a href="{% url 'users:history' %}">History</a></li>
                 <li><a href="{% url 'users:logout' %}">Logout</a></li>
             {% else %}
                 <li><a href="{% url 'users:login' %}">Login</a></li>
+                <li><a href="{% url 'users:register' %}">Register</a></li>
             {% endif %}
         </ul>
+        <form method="get" action="{% url 'users:search_users' %}">
+            <input type="text" name="q" placeholder="Search users...">
+            <button type="submit">Search</button>
+        </form>
     </nav>
 
-<div>
-    {% block content %}{% endblock %}
-</div>
-<div class="notifications">
-    {% for notification in notifications %}
-        <div class="notification">{{ notification.message }}</div>
-    {% endfor %}
-</div>
-</body>
-</html>
+    <div>
+        {% block content %}{% endblock %}
+    </div>
+
+    
+    <div class="notifications">
+        {% for notification in notifications %}
+            <div class="notification">{{ notification.message }}</div>
+        {% endfor %}
+    </div>
+
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+{% block extra_js %}
+    <script>
+        function checkForNotifications() {
+            $.ajax({
+                url: '{% url "users:check_notifications" %}',
+                type: 'GET',
+                success: function(response) {
+                    console.log(response);
+                    if (response.notifications) {
+                        response.notifications.forEach(function(notification) {
+                            if (!notification.viewed) {
+                                new Notification(notification.title, {
+                                    body: notification.body,
+                                    data: {
+                                        url: notification.url
+                                    }
+                                });
+                            }
+                            console.log(notification.title, notification.body);
+                        });
+                    }
+                },
+                error: function(error) {
+                    console.error("Ошибка при получении уведомлений:", error);
+                },
+
+                complete: function() {
+                    setTimeout(checkForNotifications, 10000); // Проверяем каждые 5 секунд
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // Проверяем, поддерживает ли браузер уведомления
+            if ('Notification' in window) {
+                console.log("API уведомлений браузера поддерживается.");
+                // Запрашиваем разрешение на отправку уведомлений
+                Notification.requestPermission().then(function(permission) {
+                    if (permission === 'granted') {
+                        console.log('Разрешение на уведомления получено.');
+                        checkForNotifications(); // Вызываем функцию после получения разрешения
+                    } else {
+                        console.log('Разрешение на уведомления не получено.');
+                    }
+                });
+            } else {
+                console.log("API уведомлений браузера не поддерживается.");
+            }
+        });
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const watchBtn = document.getElementById('watch-btn');
+            const anotherBtn = document.getElementById('another-btn');
+
+            if (watchBtn && anotherBtn) {
+                watchBtn.addEventListener('click', function() {
+                    handleSelection(this);
+                });
+
+                anotherBtn.addEventListener('click', function() {
+                    handleSelection(this);
+                });
+            }
+
+            function handleSelection(button) {
+                const selection = button.getAttribute('data-selection');
+                const filmId = button.getAttribute('data-film-id');
+                const action = button.getAttribute('data-action');
+
+                fetch(window.location.href, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-CSRFToken': '{{ csrf_token }}'
+                    },
+                    body: 'selection=' + selection + '&film_id=' + filmId + '&csrfmiddlewaretoken={{ csrf_token }}'
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        if (data.action === 'user_profile') {
+                            window.location.href = "{% if user.is_authenticated %}{% url 'users:user_profile' user.id %}{% endif %}";
+                        } else if (data.action === 'film_selection') {
+                            window.location.href = "{% url 'users:film_selection' %}";
+                        }
+                    } else {
+                        console.error('Error:', data.error_message);
+                        alert('Ошибка при обработке выбора');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('Ошибка при отправке запроса на сервер');
+                });
+            }
+        });
+
+    </script>
+
+{% endblock %}

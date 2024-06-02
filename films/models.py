@@ -72,3 +72,14 @@ class FilmChoice(models.Model):
     class Meta:
         unique_together = ('user', 'film', 'selection')
 
+class WatchedFilm(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    film = models.ForeignKey(Film, on_delete=models.CASCADE)
+    watched_at = models.DateTimeField(auto_now_add=True)
+    poster_url = models.URLField()
+
+class WatchTodayFilm(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    film = models.ForeignKey(Film, on_delete=models.CASCADE)
+    film_name = models.CharField(max_length=100)
+    poster_url = models.URLField()

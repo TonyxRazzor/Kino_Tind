@@ -126,9 +126,8 @@ USE_TZ = True
 LOGIN_REDIRECT_URL = 'users:home'
 
 
-STATIC_URL = 'static/'
-
-STATIC_ROOT = (os.path.join(BASE_DIR, 'static/'),)
+STATIC_URL = '/static/'
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 
 MEDIA_URL = '/media/'
 
@@ -158,4 +157,18 @@ DJOSER = {
     },
 
     "HIDE_USERS": False,
+}
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
+    },
 }

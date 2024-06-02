@@ -2,7 +2,7 @@
 
 {% block content %}
     <h2>Результат подтверждения совпадения</h2>
-    <p>Matched: {{ matched }}</p>
+
     {% if matched %}
         <p>Фильм совпал с выбором другого пользователя!</p>
         <p>Название фильма: {{ matching_film.name }}</p>
@@ -17,6 +17,10 @@
         {% if matching_film.poster %}
             <img src="{{ matching_film.poster.url }}" alt="{{ matching_film.name }} Poster">
         {% endif %}
+        
+        <button id="watch-btn" class="action-btn" data-selection="yes" data-film-id="{{ matching_film.id }}" data-action="watch">Буду смотреть</button>
+        <button id="another-btn" class="action-btn" data-selection="no" data-film-id="{{ matching_film.id }}" data-action="another">Выберу другой</button>
+
     {% else %}
         <p>{{ error_message }}</p>
     {% endif %}

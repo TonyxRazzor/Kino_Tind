@@ -8,7 +8,7 @@ from .models import Film
 
 @admin.register(Film)
 class FilmsAdmin(admin.ModelAdmin):
-    list_display = ('name', 'kp_rate', 'year', 'get_genres', 'country', 'poster', 'load_data_button')
+    list_display = ('name', 'kp_rate', 'year', 'get_genres', 'country', 'poster')
     search_fields = ('name',)
     list_filter = ('name',)
     empty_value_display = '-пусто-'

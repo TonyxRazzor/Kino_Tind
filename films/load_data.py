@@ -24,6 +24,11 @@ def load_data_script():
     for movie_data in data:
         movie = Movie(movie_data)
 
+        # Проверка наличия фильма в базе данных по kp_id
+        if Film.objects.filter(kp_id=movie.kp_id).exists():
+            print(f"Movie {movie.name} already exists in the database. Skipping.")
+            continue
+
         # Сохранение жанров
         genre_objects = [Genre.objects.get_or_create(name=genre)[0] for genre in movie.genre]
 
