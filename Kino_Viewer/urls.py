@@ -9,7 +9,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')),
     path('users/', include('users.urls')),
-    path('films/', include('films.urls')),
+    path('films/', include('films.urls', namespace='films')),
 
 ]
 

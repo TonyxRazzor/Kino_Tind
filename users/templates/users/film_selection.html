@@ -8,7 +8,9 @@
             {% for item in films_with_genres %}
                 {% with film=item.film %}
                     <div class="film-card film-data" data-film-id="{{ film.id }}">
-                        <h3>{{ film.name }}</h3>
+                        <h3>
+                            <a href="{% url 'films:film_detail' film.id %}">{{ film.name }}</a>
+                        </h3>
                         <p>Год выпуска: {{ film.year }}</p>
                         <p>Жанр: 
                             {% for genre in item.genres %}
@@ -19,7 +21,7 @@
                         <p>Страна: {{ film.country }}</p>
 
                         {% if film.poster %}
-                            <img src="{{ film.poster.url }}" alt="{{ film.name }} Poster">
+                            <img src="{{ film.poster.url }}" alt="{{ film.name }} Poster" width="200">
                         {% endif %}
 
                         <div class="button-container">

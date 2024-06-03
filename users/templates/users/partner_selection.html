@@ -3,15 +3,16 @@
 
 {% block content %}
     <h2>Страница выбора партнера</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Выбрать партнера</button>
-    </form>
-    <p>Или выберите из списка:</p>
+
+    <p>Выберите из списка:</p>
     <ul>
         {% for partner in partners %}
-            <li><a href="{% url 'users:preferences' partner.id %}">{{ partner.username }}</a></li>
+        <li>
+            <a href="{% url 'users:preferences' partner.id %}">
+                <img src="{{ partner.photo.url }}" alt="{{ partner.username }}'s photo" width="50" height="50">
+                {{ partner.username }}
+            </a>
+        </li>
         {% endfor %}
     </ul>
 {% endblock %}

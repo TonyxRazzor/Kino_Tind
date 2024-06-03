@@ -16,7 +16,9 @@ from .views import (
     search_users,
     send_friend_request,
     remove_friend,
-    send_film_invitation
+    send_film_invitation,
+    film_detail
+
 )
 from django.contrib.auth import views as auth_views
 
@@ -41,7 +43,8 @@ urlpatterns = [
     path('accept_friend_request/<int:request_id>/', accept_friend_request, name='accept_friend_request'),
     path('search/', search_users, name='search_users'),
     path('remove_friend/<int:friend_id>/', remove_friend, name='remove_friend'),
-     path('send_film_invitation/<int:user_id>/', send_film_invitation, name='send_film_invitation'),
+    path('send_film_invitation/<int:user_id>/', send_film_invitation, name='send_film_invitation'),
+    path('film/<int:film_id>/', film_detail, name='film_detail'),
 
     # Добавьте другие URL-маршруты, как необходимо
 ]

@@ -13,6 +13,7 @@ class Movie:
         self.genre = data['genre']
         self.country = data['country']
         self.poster = data['poster']
+        self.description = data.get('description', 'Описание недоступно')
 
 def load_data_script():
     # Чтение данных из файла JSON
@@ -40,7 +41,8 @@ def load_data_script():
             kp_rate=movie.kp_rate,
             year=movie.year,
             country=movie.country,
-            poster=f"posters/kp/{movie.kp_id}.jpg"
+            poster=f"posters/kp/{movie.kp_id}.jpg",
+            description=movie.description  # Сохраняем описание
         )
         film.genre.set(genre_objects)  # Привязываем жанры к фильму
         film.save()

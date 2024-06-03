@@ -15,7 +15,7 @@
         </p>
         <p>Страна: {{ matching_film.country }}</p>
         {% if matching_film.poster %}
-            <img src="{{ matching_film.poster.url }}" alt="{{ matching_film.name }} Poster">
+            <img src="{{ matching_film.poster.url }}" alt="{{ matching_film.name }} Poster" width="250">
         {% endif %}
         
         <button id="watch-btn" class="action-btn" data-selection="yes" data-film-id="{{ matching_film.id }}" data-action="watch">Буду смотреть</button>

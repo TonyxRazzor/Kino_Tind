@@ -1,0 +1,31 @@
+<!-- films/templates/films/film_detail.html -->
+{% extends 'base.html' %}
+
+{% block title %}{{ film.title }}{% endblock %}
+
+{% block content %}
+    <h2>{{ film.name }}</h2>
+
+    <p><strong>Год выпуска:</strong> {{ film.year }}</p>
+
+    <p><strong>Жанр:</strong>
+        {% for genre in genres %}
+            {{ genre.name }}
+            {% if not forloop.last %}, {% endif %}
+        {% endfor %}
+    </p>
+        
+    
+    {% for genre in film.genres.all %}
+    <p>{{ genre.name }}</p>
+    {% endfor %}
+
+
+    <p><strong>Страна:</strong> {{ film.country }}</p>
+
+    <img src="{{ film.poster.url }}" alt="{{ film.title }} poster" width="200">
+
+    <p><strong>Описание:</strong> {{ film.description }}</p>
+
+    <!-- Добавьте другую информацию о фильме, если необходимо -->
+{% endblock %}

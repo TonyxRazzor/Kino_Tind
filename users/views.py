@@ -126,7 +126,8 @@ def send_film_invitation(request, user_id):
     )
     logger.debug(f'Film selection request notification created for {to_user.username}')
 
-    return redirect('users:user_profile', user_id=to_user.id)
+    # Перенаправляем пользователя на представление выбора жанра
+    return redirect('users:preferences', partner_id=user_id)
 
 @login_required
 def user_profile(request, user_id):
@@ -285,7 +286,10 @@ def film_selection(request):
     context = {'films_with_genres': films_with_genres, 'form': form, 'film_id': film_id}
     return render(request, 'users/film_selection.html', context)
 
-
+def film_detail(request, film_id):
+    film = get_object_or_404(Film, id=film_id)
+    genres = get_genres_for_film(film)  # Получаем жанры для данного фильма
+    return render(request, 'films/film_detail.html', {'film': film, 'genres': genres})
 
 def check_for_match(request):
     # Если совпадение найдено, верните список идентификаторов фильмов, иначе верните None

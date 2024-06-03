@@ -3,7 +3,7 @@
 
 {% block content %}
     <h2>Загрузка данных</h2>
-    <form id="load-data-form" method="post" action="{% url 'load_data_action' %}">
+    <form id="load-data-form" method="post" action="{% url 'films:load_data_action' %}">
         {% csrf_token %}
         <button type="submit" class="button">Загрузить данные в базу</button>
     </form>

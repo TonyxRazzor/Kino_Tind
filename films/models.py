@@ -49,6 +49,8 @@ class Film(models.Model):
         verbose_name='Постер'
     )
 
+    description = models.TextField()
+
     def __str__(self):
         return self.name
 

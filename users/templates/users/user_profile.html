@@ -8,18 +8,16 @@
 {% block content %}
 <h2>{{ viewed_user.username }}'s Profile</h2>
 {% if viewed_user.photo %}
-    <img src="{{ viewed_user.photo.url }}" alt="{{ viewed_user.username }}'s profile photo">
+    <img src="{{ viewed_user.photo.url }}" alt="{{ viewed_user.username }}'s profile photo" width="250" height="250">
 {% else %}
-    <img src="{% static 'photos_user/default.jpg' %}" alt="Default profile photo">
+    <img src="{% static 'photos_user/default.jpg' %}" alt="Default profile photo" width="250" height="250">
 {% endif %}
 
-{% if viewed_user != user %}
-    <form method="post">
-        {% csrf_token %}
-        <input type="hidden" name="action" value="send_selection_request">
-        <input type="hidden" name="selected_user_id" value="{{ viewed_user.id }}">
-        <button type="submit">Send Film Selection Request</button>
-    </form>
+{% if is_friend %}
+<form method="post" action="{% url 'users:send_film_invitation' viewed_user.id %}">
+    {% csrf_token %}
+    <button type="submit">Invite to Select Film</button>
+</form>
 {% endif %}
 
 {% if viewed_user == user %}
@@ -57,7 +55,7 @@
 <ul>
     {% for friend in friends %}
         <li>
-            <img src="{{ friend.photo.url }}" alt="{{ friend.username }}'s profile photo">
+            <img src="{{ friend.photo.url }}" alt="{{ friend.username }}'s profile photo" width="250" height="250">
             <a href="{% url 'users:user_profile' user_id=friend.id %}">{{ friend.username }}</a>
         </li>
     {% endfor %}
@@ -66,8 +64,8 @@
 <h3>Фильмы для просмотра сегодня</h3>
 {% for watch_today_film in watch_today_films %}
     <div>
-        <img src="{{ watch_today_film.poster_url }}" alt="{{ watch_today_film.film_name }} Poster">
-        <p>{{ watch_today_film.film_name }}</p>
+        <img src="{{ watch_today_film.poster_url }}" alt="{{ watch_today_film.film_name }} Poster" width="200">
+        <p><a href="{% url 'films:film_detail' film_id=watch_today_film.film_id %}">{{ watch_today_film.film_name }}</a></p>
         {% if viewed_user == user %}
             <form method="post">
                 {% csrf_token %}
@@ -85,8 +83,8 @@
 <ul>
     {% for watched_film in films_watched %}
         <li>
-            <p>{{ watched_film.film.name }}</p>
-            <img src="{{ watched_film.film.poster.url }}" alt="{{ watched_film.film.name }} Poster">
+            <p><a href="{% url 'films:film_detail' film_id=watched_film.film_id %}">{{ watched_film.film.name }}</a></p>
+            <img src="{{ watched_film.film.poster.url }}" alt="{{ watched_film.film.name }} Poster" width="200">
         </li>
     {% endfor %}
 </ul>
