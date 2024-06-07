@@ -1,3 +1,5 @@
+{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,8 +7,19 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My Site{% endblock %}</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'js/notifications.js' %}"></script>
+    <script type="text/javascript">
+        var checkNotificationsUrl = "{% url 'users:check_notifications' %}";
+        var checkUserMatchUrl = "{% url 'users:check_user_match' %}";
+        var userProfileUrl = "{% if user.is_authenticated %}{% url 'users:user_profile' user.id %}{% endif %}";
+        var filmSelectionUrl = "{% url 'users:film_selection' %}";
+    </script>
+
 </head>
 <body>
+
+    {% csrf_token %}
 
     <nav>
         <ul>
@@ -16,12 +29,9 @@
                 <li><a href="{% url 'users:partner_selection' %}">Partner Selection</a></li>
                 {% if partner %}
                     <li><a href="{% url 'users:preferences' partner_id=partner.id %}">Preferences</a></li>
-                {% else %}
-                    <li><a href="{% url 'users:preferences' partner_id=0 %}">Preferences</a></li>
                 {% endif %}
                 <li><a href="{% url 'users:film_selection' %}">Film Selection</a></li>
-                <li><a href="{% url 'users:result' %}">Result</a></li>
-                <li><a href="{% url 'users:history' %}">History</a></li>
+
                 <li><a href="{% url 'users:logout' %}">Logout</a></li>
             {% else %}
                 <li><a href="{% url 'users:login' %}">Login</a></li>
@@ -46,9 +56,9 @@
     </div>
 
     
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 
-{% block extra_js %}
+<!-- {% block extra_js %}
     <script>
         function checkForNotifications() {
             $.ajax({
@@ -59,12 +69,17 @@
                     if (response.notifications) {
                         response.notifications.forEach(function(notification) {
                             if (!notification.viewed) {
-                                new Notification(notification.title, {
+                                var newNotification = new Notification(notification.title, {
                                     body: notification.body,
                                     data: {
                                         url: notification.url
                                     }
                                 });
+
+                                newNotification.onclick = function(event) {
+                                    event.preventDefault();
+                                    window.open(newNotification.data.url, '_blank');
+                                };
                             }
                             console.log(notification.title, notification.body);
                         });
@@ -75,7 +90,7 @@
                 },
 
                 complete: function() {
-                    setTimeout(checkForNotifications, 10000); // Проверяем каждые 5 секунд
+                    setTimeout(checkForNotifications, 10000); // Проверяем каждые 10 секунд
                 }
             });
         }
@@ -148,4 +163,4 @@
 
     </script>
 
-{% endblock %}
+{% endblock %} -->

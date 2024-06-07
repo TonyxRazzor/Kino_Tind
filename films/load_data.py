@@ -7,11 +7,11 @@ import requests
 class Movie:
     def __init__(self, data: dict):
         self.kp_id = data['kp_id']
-        self.name = data['name']
+        self.name = data.get('name', []) or data.get('ru_name', [])
         self.year = data['year']
-        self.kp_rate = data['kp_rate']
-        self.genre = data['genre']
-        self.country = data['country']
+        self.kp_rate = data.get('kp_rate', 'zero')
+        self.genre = data.get('genre', []) or data.get('genres', [])
+        self.country = data.get('country', []) or data.get('countries', [])
         self.poster = data['poster']
         self.description = data.get('description', 'Описание недоступно')
 

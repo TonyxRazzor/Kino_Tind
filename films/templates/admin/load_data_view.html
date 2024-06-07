@@ -8,6 +8,20 @@
         <button type="submit" class="button">Загрузить данные в базу</button>
     </form>
 
+    <br>
+
+    <form id="export-data-form" method="post" action="{% url 'films:export_data_action_250' %}">
+        {% csrf_token %}
+        <button type="submit" class="button">Выгрузить данные "TOP-250" в JSON</button>
+    </form>
+
+    <br>
+
+    <form id="export-data-form" method="post" action="{% url 'films:export_data_action_1000' %}">
+        {% csrf_token %}
+        <button type="submit" class="button">Выгрузить данные "TOP-Popular" в JSON</button>
+    </form>
+
     <progress id="progress-bar" value="0" max="100" style="display: none;"></progress>
 
     <div id="messages-container"></div>
@@ -15,33 +29,41 @@
 
 {% block extra_js %}
 <script>
-    document.getElementById('load-data-form').addEventListener('submit', function(event) {
-        var progressBar = document.getElementById('progress-bar');
-        progressBar.style.display = 'block';
-        progressBar.value = 0;
+    function setupForm(formId, actionUrl) {
+        document.getElementById(formId).addEventListener('submit', function(event) {
+            var progressBar = document.getElementById('progress-bar');
+            progressBar.style.display = 'block';
+            progressBar.value = 0;
 
-        var xhr = new XMLHttpRequest();
-        xhr.open('POST', this.action, true);
+            var xhr = new XMLHttpRequest();
+            xhr.open('POST', actionUrl, true);
 
-        xhr.upload.onprogress = function(e) {
-            if (e.lengthComputable) {
-                progressBar.value = (e.loaded / e.total) * 100;
-            }
-        };
+            xhr.upload.onprogress = function(e) {
+                if (e.lengthComputable) {
+                    progressBar.value = (e.loaded / e.total) * 100;
+                }
+            };
 
-        xhr.onload = function() {
-            progressBar.style.display = 'none';
-            if (xhr.status === 200) {
-                var response = JSON.parse(xhr.responseText);
+            xhr.onload = function() {
+                progressBar.style.display = 'none';
                 var messageContainer = document.getElementById('messages-container');
-                messageContainer.innerHTML = '<ul class="messages"><li class="' + (response.success ? 'success' : 'error') + '">' + response.message + '</li></ul>';
-            }
-        };
+                if (xhr.status === 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    messageContainer.innerHTML = '<ul class="messages"><li class="' + (response.success ? 'success' : 'error') + '">' + response.message + '</li></ul>';
+                } else {
+                    messageContainer.innerHTML = '<ul class="messages"><li class="error">Ошибка при выполнении операции.</li></ul>';
+                }
+            };
 
-        var formData = new FormData(this);
-        xhr.send(formData);
+            var formData = new FormData(this);
+            xhr.send(formData);
 
-        event.preventDefault();
-    });
+            event.preventDefault();
+        });
+    }
+
+    setupForm('load-data-form', '{% url "films:load_data_action" %}');
+    setupForm('export-data-form-250', '{% url "films:export_data_action_250" %}');
+    setupForm('export-data-form-1000', '{% url "films:export_data_action_1000" %}');
 </script>
 {% endblock %}

@@ -5,6 +5,7 @@
     <h2>Выбор жанра</h2>
     <form method="post" action="{% url 'users:preferences' partner_id=partner_id %}">
         {% csrf_token %}
+        <button type="submit" name="random_choice" value="1">Случайный выбор</button>
         {{ form.as_p }}
         <button type="submit">Применить</button>
     </form>

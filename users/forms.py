@@ -28,6 +28,7 @@ class PreferencesForm(forms.Form):
         choices=[],
         widget=forms.CheckboxSelectMultiple,
         required=True,
+        error_messages={'max_length': "Можно выбрать не более трех жанров."},
     )
 
     def update_genre_choices(self, genre_choices):
@@ -35,6 +36,12 @@ class PreferencesForm(forms.Form):
 
     def update_genre_initial(self, selected_genres):
         self.fields['genre'].initial = selected_genres
+    
+    def clean_genre(self):
+        selected_genres = self.cleaned_data.get('genre', [])
+        if len(selected_genres) > 3:
+            raise forms.ValidationError("Можно выбрать не более трех жанров.")
+        return selected_genres
 
 
 class FilmSelectionForm(forms.Form):

@@ -18,6 +18,8 @@
             <img src="{{ matching_film.poster.url }}" alt="{{ matching_film.name }} Poster" width="250">
         {% endif %}
         
+        {% csrf_token %}
+
         <button id="watch-btn" class="action-btn" data-selection="yes" data-film-id="{{ matching_film.id }}" data-action="watch">Буду смотреть</button>
         <button id="another-btn" class="action-btn" data-selection="no" data-film-id="{{ matching_film.id }}" data-action="another">Выберу другой</button>
 

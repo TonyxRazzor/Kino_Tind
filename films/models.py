@@ -27,12 +27,14 @@ class Film(models.Model):
     kp_rate = models.CharField(
         max_length=10,
         db_index=True,
-        verbose_name='Рэйтинг'
+        verbose_name='Рэйтинг',
+        null=True  # Разрешаем пустые значения
     )
 
     year = models.IntegerField(
         db_index=True,
-        verbose_name='Год'
+        verbose_name='Год',
+        null=True
     )
 
     genre = models.ManyToManyField(Genre)
@@ -49,7 +51,7 @@ class Film(models.Model):
         verbose_name='Постер'
     )
 
-    description = models.TextField()
+    description = models.TextField(null=True)
 
     def __str__(self):
         return self.name

@@ -17,10 +17,10 @@ from django.views.decorators.http import require_GET
 from django.db import IntegrityError
 import logging
 from django.conf import settings
+from random import sample
 
 import json
 from .models import User, Notification, Friendship
-import random
 
 logger = logging.getLogger(__name__)
 
@@ -65,9 +65,10 @@ def send_friend_request(request, user_id):
     if created:
         Notification.objects.create(
             user=to_user,
-            title='Friend Request',
-            body=f'{request.user.username} sent you a friend request.',
-            is_match_notification=False
+            title='Запрос в друзья',
+            body=f'Пользователь {request.user.username} отправил вам запрос на добавление в друзья.',
+            is_match_notification=False,
+            url=reverse('users:user_profile', kwargs={'user_id': request.user.id})
         )
         logger.debug(f'Friend request notification created for {to_user.username}')
     else:
@@ -83,9 +84,10 @@ def accept_friend_request(request, request_id):
 
     Notification.objects.create(
         user=friend_request.from_user,
-        title='Friend Request Accepted',
-        body=f'{request.user.username} accepted your friend request.',
-        is_match_notification=False
+        title='Запрос на добавление в друзья принят',
+        body=f'Пользователь {request.user.username} принял ваш запрос на добавление в друзья.',
+        is_match_notification=False,
+        url=reverse('users:user_profile', kwargs={'user_id': request.user.id})
     )
     logger.debug(f'Friend request accepted notification created for {friend_request.from_user.username}')
     
@@ -120,9 +122,10 @@ def send_film_invitation(request, user_id):
 
     Notification.objects.create(
         user=to_user,
-        title='Film Invitation',
-        body=f'{request.user.username} invited you to select a film.',
-        is_match_notification=False
+        title='Приглашение в кино',
+        body=f'Пользователь {request.user.username} пригласил вас выбрать фильм.',
+        is_match_notification=False,
+        url=reverse('users:preferences', kwargs={'partner_id': request.user.id})
     )
     logger.debug(f'Film selection request notification created for {to_user.username}')
 
@@ -233,6 +236,13 @@ def preferences(request, partner_id):
     if request.method == 'POST':
         form = PreferencesForm(request.POST)
         form.update_genre_choices(genre_choices)  # Обновление вариантов выбора после создания формы
+
+        # Проверяем, была ли нажата кнопка "Случайный выбор"
+        if 'random_choice' in request.POST:
+            selected_genres = sample(list(genre_choices), 3)  # Выбираем три случайных жанра
+            request.session['selected_genres'] = selected_genres
+            return redirect('users:film_selection')
+        
         if form.is_valid():
             selected_genres = form.cleaned_data.get('genre')
             request.session['selected_genres'] = selected_genres
@@ -302,37 +312,42 @@ def check_for_match(request):
 
 
 @csrf_exempt
+@login_required
 def confirm_match(request):
-    film_id = request.POST.get('film_id')
-    selection = request.POST.get('selection')
-    user = request.user
+    if request.method == 'POST':
+        film_id = request.POST.get('film_id')
+        selection = request.POST.get('selection')
+        user = request.user
 
-    film_choice, created = FilmChoice.objects.get_or_create(user=user, film_id=film_id, defaults={'selection': selection})
-    if not created:
-        film_choice.selection = selection
-        film_choice.save()
-
-    if selection == 'yes':
-        # Проверка на совпадение
-        match = FilmChoice.objects.filter(film_id=film_id, selection='yes').exclude(user=user).first()
-        if match:
-            # Обновление статуса совпадения для обоих пользователей
-            film_choice.matched = True
+        film_choice, created = FilmChoice.objects.get_or_create(user=user, film_id=film_id, defaults={'selection': selection})
+        if not created:
+            film_choice.selection = selection
             film_choice.save()
 
-            match.matched = True
-            match.save()
+        if selection == 'yes':
+            # Проверка на совпадение
+            match = FilmChoice.objects.filter(film_id=film_id, selection='yes').exclude(user=user).first()
+            if match:
+                # Обновление статуса совпадения для обоих пользователей
+                film_choice.matched = True
+                film_choice.save()
 
-            # Создание уведомлений для обоих пользователей
-            create_match_notification(user, 'Найдено совпадение для выбранного фильма!', 'Найдено совпадение для выбранного фильма!', None)
-            create_match_notification(match.user, 'Найдено совпадение для выбранного фильма!', 'Найдено совпадение для выбранного фильма!', None)
+                match.matched = True
+                match.save()
 
-            return JsonResponse({'success': True, 'film_id': film_id})
+                # Создание уведомлений для обоих пользователей
+                create_match_notification(user, 'Найдено совпадение для выбранного фильма!', 'Найдено совпадение для выбранного фильма!', None)
+                create_match_notification(match.user, 'Найдено совпадение для выбранного фильма!', 'Найдено совпадение для выбранного фильма!', None)
 
-    return JsonResponse({'success': False})
+                return JsonResponse({'success': True, 'film_id': film_id, 'matched': True})
 
+        elif selection == 'no':
+            # Вернуть успешный ответ для скрытия фильма на клиенте
+            return JsonResponse({'success': True, 'action': 'film_selection'})
 
-from django.http import JsonResponse
+        return JsonResponse({'success': True, 'film_id': film_id, 'matched': False})
+
+    return JsonResponse({'success': False, 'error_message': 'Invalid request method'})
 
 @login_required
 def confirm_match_result(request, film_id=None):
@@ -340,7 +355,10 @@ def confirm_match_result(request, film_id=None):
     # Проверяем существует ли переменная film_id
     if film_id is None:
         # Если нет, пытаемся получить film_id из сессии
-        film_id = request.session.get('matching_film_ids', [])[0]
+        film_ids = request.session.get('matching_film_ids', [])
+        if not film_ids:
+            return render(request, 'users/no_match.html')
+        film_id = film_ids[0]
 
     # Получаем фильм по его идентификатору
     film = get_object_or_404(Film, id=film_id)
@@ -375,17 +393,6 @@ def confirm_match_result(request, film_id=None):
 
     return render(request, 'users/confirm_match_result.html', {'matched': matched, 'matching_film': film})
 
-
-def result(request):
-    selected_film = get_selected_film_based_on_preferences({'genre': 'some_genre'})
-    return render(request, 'users/result.html', {'film': selected_film})
-
-
-def history(request):
-    # Получение истории просмотров текущего пользователя
-    viewed_films = FilmChoice.objects.filter(user=request.user)
-
-    return render(request, 'users/history.html', {'history': viewed_films})
 
 def get_selected_film_based_on_preferences(preferences):
     genre = preferences.get('genre')
@@ -436,7 +443,7 @@ def check_match(request):
         matching_film.save(update_fields=['matched'])
 
         # Создаем уведомление для текущего пользователя
-        create_match_notification(user, 'Найдено совпадение для выбранного фильма!', 'Найдено совпадение для выбранного фильма!', None)
+        create_match_notification(user, 'Найдено совпадение для выбранного фильма!', 'Найдено совпадение для выбранного фильма!')
 
         # Устанавливаем сессию для совпадения фильма
         request.session['matching_film_ids'] = [matching_film.film.id]
@@ -494,25 +501,27 @@ def create_remove_friend_notification(sender, receiver):
     # Создаем уведомление об удалении друга для отправителя
     Notification.objects.create(
         user=sender,
-        title='Friend Removed',
-        body=f'You have removed {receiver.username} from your friends list.',
-        is_match_notification=False
+        title='Друг удален',
+        body=f'Вы удалили пользователя {receiver.username} из списка друзей.',
+        is_match_notification=False,
+        url=reverse('users:user_profile', kwargs={'user_id': receiver.id})
     )
     
     # Создаем уведомление об удалении друга для получателя
     Notification.objects.create(
         user=receiver,
-        title='Friend Removed',
-        body=f'{sender.username} has removed you from their friends list.',
-        is_match_notification=False
+        title='Друг удален',
+        body=f'Пользователь {sender.username} удалил вас из своего списка друзей.',
+        is_match_notification=False,
+        url=reverse('users:user_profile', kwargs={'user_id': sender.id})
     )
 
 def create_film_selection_request_notification(sender, receiver):
     # Создаем уведомление о запросе на совместный выбор фильма
     Notification.objects.create(
         user=receiver,
-        title='Film Selection Request',
-        body=f'{sender.username} invites you to select a film together.',
+        title='Запрос на выбор фильма',
+        body=f'{sender.username} приглашает вас вместе выбрать фильм.',
         is_match_notification=False
     )
 
