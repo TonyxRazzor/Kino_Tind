@@ -2,6 +2,23 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <style>
+        /* Стили для кнопок */
+        button {
+            background-color: #007bff; /* Цвет фона */
+            color: #fff; /* Цвет текста */
+            border: none; /* Убираем границы */
+            padding: 10px 20px; /* Поля вокруг текста */
+            border-radius: 5px; /* Закругление углов */
+            cursor: pointer; /* Изменение курсора при наведении */
+            transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
+        }
+
+        button:hover {
+            background-color: #0056b3; /* Цвет фона при наведении */
+        }
+    </style>
+
     <h2>Выбор жанра</h2>
     <form method="post" action="{% url 'users:preferences' partner_id=partner_id %}">
         {% csrf_token %}

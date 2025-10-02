@@ -29,6 +29,7 @@ class PreferencesForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
         required=True,
         error_messages={'max_length': "Можно выбрать не более трех жанров."},
+        label='Жанры'
     )
 
     def update_genre_choices(self, genre_choices):
@@ -78,6 +79,9 @@ class UserProfileForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['username', 'photo']
+        widgets = {
+            'photo': forms.ClearableFileInput(attrs={'class': 'form-control', 'id': 'inputGroupFile04', 'aria-describedby': 'inputGroupFileAddon04', 'aria-label': 'Загрузка'}),
+        }
 
 class ProfilePhotoForm(forms.Form):
     photo = forms.ImageField()

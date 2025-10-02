@@ -1,0 +1,20 @@
+/* Стили для темной темы */
+html[data-bs-theme='dark'] body {
+    background-color: #212529;
+    color: #ffffff;
+}
+
+/* Определение переменных */
+html[data-bs-theme='dark'] :root {
+    --primary-color: #17a2b8; /* Основной цвет для темной темы */
+    --button-bg-color: #17a2b8; /* Цвет фона кнопки */
+    --button-text-color: #000000; /* Цвет текста кнопки */
+    --button-border-color: #17a2b8; /* Цвет границы кнопки */
+}
+
+/* Стили для темной темы */
+html[data-bs-theme='dark'] .btn-primary {
+    background-color: var(--button-bg-color) !important;
+    color: var(--button-text-color) !important;
+    border-color: var(--button-border-color) !important;
+}

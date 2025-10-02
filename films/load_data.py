@@ -7,7 +7,7 @@ import requests
 class Movie:
     def __init__(self, data: dict):
         self.kp_id = data['kp_id']
-        self.name = data.get('name', []) or data.get('ru_name', [])
+        self.name = data.get('name', '') or data.get('ru_name', '') or "Без названия"
         self.year = data['year']
         self.kp_rate = data.get('kp_rate', 'zero')
         self.genre = data.get('genre', []) or data.get('genres', [])

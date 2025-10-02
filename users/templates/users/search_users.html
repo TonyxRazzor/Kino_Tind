@@ -4,19 +4,21 @@
 {% block title %}Search Results{% endblock %}
 
 {% block content %}
-<h2>Search Results</h2>
-{% if users %}
-    <ul>
+<div class="search-results-container">
+    <h2>Результаты поиска</h2>
+    {% if users %}
+    <ul class="user-list">
         {% for user in users %}
-            <li>
-                <a href="{% url 'users:user_profile' user.id %}">
-                    <img src="{{ user.photo.url }}" alt="{{ user.username }}'s photo" width="50" height="50">
-                    {{ user.username }}
-                </a>
-            </li>
+        <li>
+            <a href="{% url 'users:user_profile' user.id %}" class="user-link">
+                <img src="{{ user.photo.url }}" alt="{{ user.username }}'s photo" class="user-photo">
+                <span class="user-username">{{ user.username }}</span>
+            </a>
+        </li>
         {% endfor %}
     </ul>
-{% else %}
+    {% else %}
     <p>No users found matching your query.</p>
-{% endif %}
+    {% endif %}
+</div>
 {% endblock %}

@@ -1,29 +1,18 @@
-from django.urls import path
-from .views import (
-    home,
-    partner_selection,
-    preferences,
-    film_selection,
-    register,
-    confirm_match,
-    confirm_match_result,
-    check_notifications,
-    check_user_match,
-    user_profile,
-    accept_friend_request,
-    search_users,
-    send_friend_request,
-    remove_friend,
-    send_film_invitation,
-    film_detail
-
-)
+from django.conf import settings
+from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from django.urls import path
+
+from .views import (accept_friend_request, check_notifications,
+                    check_user_match, confirm_match, confirm_match_result,
+                    film_detail, film_selection, home_view, partner_selection,
+                    preferences, register, remove_friend, search_users,
+                    send_film_invitation, send_friend_request, user_profile)
 
 app_name = 'users'
 
 urlpatterns = [
-    path('home/', home, name='home'),
+    # path('home/', home, name='home'),
     path('partner_selection/', partner_selection, name='partner_selection'),
     path('preferences/<int:partner_id>/', preferences, name='preferences'),
     path('film_selection/', film_selection, name='film_selection'),
@@ -41,6 +30,7 @@ urlpatterns = [
     path('remove_friend/<int:friend_id>/', remove_friend, name='remove_friend'),
     path('send_film_invitation/<int:user_id>/', send_film_invitation, name='send_film_invitation'),
     path('film/<int:film_id>/', film_detail, name='film_detail'),
+    path('home/', home_view, name='home'),
 
     # Добавьте другие URL-маршруты, как необходимо
 ]

@@ -1,0 +1,762 @@
+.center-content {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Стиль для контейнера поля ввода и кнопки */
+.search-container {
+    display: flex;
+    align-items: center;
+}
+
+/* Стиль для поля ввода поиска */
+.search-input {
+    flex: 1;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.25rem;
+    border: 1px solid #ced4da;
+    margin-right: 10px;
+    max-width: 200px; /* Ограничиваем ширину поля ввода */
+}
+
+
+/* Стиль для кнопки поиска */
+.btn-search {
+    background-color: #007bff; /* Цвет фона кнопки */
+    color: #fff; /* Цвет текста кнопки */
+    border: 1px solid #ced4da; /* Убираем границу */
+    height: auto; /* Отключаем фиксированную высоту */
+    padding: 0.375rem 0.75rem; /* Устанавливаем отступы для кнопки */
+}
+
+
+/* Стиль для скрытой формы */
+#photo-upload-form {
+    max-height: 0; /* Изначально скрываем форму */
+    overflow: hidden; /* Скрываем ее содержимое */
+    transition: max-height 0.5s ease; /* Плавное изменение максимальной высоты */
+}
+
+/* Стиль для показанной формы */
+#photo-upload-form.active {
+    max-height: 500px; /* Показываем форму с максимальной высотой */
+    overflow: auto; /* Разрешаем прокрутку, если содержимое не помещается */
+}
+
+
+/* Стиль для выделенной надписи */
+#change-photo-toggle {
+    cursor: pointer; /* Курсор при наведении */
+    color: #007bff; /* Цвет текста */
+    transition: color 0.3s ease; /* Плавное изменение цвета текста */
+    text-align: center; /* Центрируем текст */
+    display: block; /* Отображаем как блок для центрирования */
+    margin-top: 10px; /* Добавляем отступ сверху */
+}
+
+/* Стиль для выделенной надписи при наведении */
+#change-photo-toggle:hover {
+    color: #0056b3; /* Изменяем цвет текста при наведении */
+}
+
+/* Стили друзей */
+.friends-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.friend-item {
+    text-align: center;
+}
+
+.friend-item img {
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+}
+
+.friend-item a {
+    display: block;
+    margin-top: 5px;
+    text-decoration: none;
+    color: #0056b3;
+}
+
+/* Стили фильмов на сегодня */
+.watch-today-films {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.film-item {
+    text-align: center;
+}
+
+.film-item img {
+    width: 200px;
+    height: auto;
+    border-radius: 5px;
+}
+
+.film-item p {
+    margin-top: 5px;
+}
+
+.film-item button {
+    margin-top: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+}
+
+.film-item button:hover {
+    background-color: #0056b3;
+}
+
+/* Стили просмотренных фильмов */
+.watched-films-list {
+    margin-top: 20px;
+}
+
+.watched-films-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Три колонки */
+    gap: 20px; /* Промежуток между элементами */
+}
+
+.watched-film-item {
+    text-align: center;
+}
+
+.watched-film-item img {
+    width: 200px;
+    height: auto;
+    border-radius: 5px;
+}
+
+.watched-film-item p {
+    margin-top: 10px; /* Отступ названия от постера */
+}
+
+@media screen and (max-width: 768px) {
+    .watched-films-grid {
+        grid-template-columns: repeat(2, 1fr); /* Две колонки на узком экране */
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .watched-films-grid {
+        grid-template-columns: 1fr; /* Одна колонка на очень узком экране */
+    }
+}
+
+/* Стиль фото профиля */
+/* Основные стили для профиля */
+.profile-username {
+    text-align: center;
+    font-size: 2rem;
+    margin-top: 20px;
+    color: var(--primary-color);
+}
+
+.profile-photo-container {
+    display: flex;
+    flex-direction: column; /* Вертикальное расположение элементов */
+    align-items: center; /* Центрируем по горизонтали */
+    margin-top: 20px;
+}
+
+.profile-photo {
+    width: 250px;
+    height: 250px;
+    border-radius: 15px; /* Скругленные углы */
+    border: 5px solid var(--primary-color);
+}
+
+/* Адаптация под узкие экраны */
+@media screen and (max-width: 768px) {
+    .profile-username {
+        font-size: 1.5rem;
+    }
+
+    .profile-photo {
+        width: 200px;
+        height: 200px;
+    }
+}
+
+@media screen and (max-width: 576px) {
+    .profile-username {
+        font-size: 1.2rem;
+    }
+
+    .profile-photo {
+        width: 150px;
+        height: 150px;
+    }
+}
+
+/* Стиль для кнопки приглашения на выбор фильма */
+.invite-button {
+    background-color: #28a745; /* Зеленый цвет фона */
+    color: #fff; /* Белый цвет текста */
+    border: none; /* Убираем границу */
+    padding: 5px 10px; /* Внутренние отступы */
+    border-radius: 5px; /* Скругленные углы */
+    font-size: 0.875rem; /* Размер шрифта */
+    cursor: pointer; /* Курсор указателя при наведении */
+    transition: background-color 0.3s ease; /* Плавное изменение фона */
+}
+
+.invite-button:hover {
+    background-color: #218838; /* Темно-зеленый цвет фона при наведении */
+}
+
+/* Центрирование формы */
+.invite-form-container {
+    display: flex;
+    justify-content: center; /* Горизонтальное центрирование */
+    margin-top: 20px; /* Отступ сверху */
+}
+
+/* Основные стили для кнопок */
+.button {
+    background-color: #007bff; /* Основной цвет фона */
+    color: #fff; /* Цвет текста */
+    border: none; /* Убираем границу */
+    padding: 5px 10px; /* Внутренние отступы */
+    border-radius: 5px; /* Скругленные углы */
+    font-size: 0.875rem; /* Размер шрифта */
+    cursor: pointer; /* Курсор указателя при наведении */
+    transition: background-color 0.3s ease; /* Плавное изменение фона */
+    margin-top: 10px; /* Отступ сверху */
+}
+
+.button:hover {
+    background-color: #0056b3; /* Темно-синий цвет фона при наведении */
+}
+
+/* Стили для сообщений */
+.friend-status {
+    font-size: 1rem; /* Размер шрифта */
+    color: #2170b1; /* Цвет текста */
+    margin-top: 10px; /* Отступ сверху */
+}
+
+/* Центрирование формы */
+.form-container {
+    display: flex;
+    justify-content: center; /* Горизонтальное центрирование */
+    margin-top: 20px; /* Отступ сверху */
+}
+
+/* Основные стили для страницы выбора партнера */
+.partner-selection-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.partner-selection-container h2 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.partner-selection-container p {
+    font-size: 1.125rem;
+    color: #555;
+}
+
+/* Обновленные стили для страницы выбора партнера */
+.partner-selection-container {
+    text-align: center;
+    margin-top: -350px; /* Увеличиваем верхний отступ */
+}
+
+.partner-selection-container h2 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.partner-selection-container p {
+    font-size: 1.125rem;
+    color: #555;
+}
+
+/* Стили для списка партнеров */
+.partner-list {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+.partner-list li {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    transition: box-shadow 0.3s ease;
+}
+
+.partner-list li:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для ссылки на партнера */
+.partner-list a {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+.partner-list a:hover {
+    color: #0056b3;
+}
+
+/* Стили для фото партнера */
+.partner-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+/* Основные стили для страницы результатов поиска */
+.search-results-container {
+    text-align: center;
+    margin-top: -350px;
+}
+
+.search-results-container h2 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+/* Стили для списка пользователей */
+.user-list {
+    list-style-type: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* Стили для каждого пользователя в списке */
+.user-list li {
+    display: flex;
+    align-items: center;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    transition: box-shadow 0.3s ease;
+}
+
+.user-list li:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Стили для ссылки на профиль пользователя */
+.user-link {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: #007bff;
+    transition: color 0.3s ease;
+}
+
+.user-link:hover {
+    color: #0056b3;
+}
+
+/* Стили для фотографии пользователя */
+.user-photo {
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    margin-right: 10px;
+}
+
+/* Стили для имени пользователя */
+.user-username {
+    font-weight: bold;
+}
+
+/* Основные стили для страницы детальной информации о фильме */
+.film-detail-container {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.film-detail-container h2 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+/* Стили для информации о фильме */
+.film-detail-info {
+    font-size: 1.125rem;
+    color: #757575;
+    margin-bottom: 20px;
+}
+
+/* Стили для списка жанров */
+.film-genres-list {
+    list-style-type: none;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+/* Стили для каждого жанра в списке */
+.film-genres-list li {
+    display: inline;
+    margin-right: 10px;
+}
+
+/* Стили для изображения постера фильма */
+.film-poster {
+    max-width: 70%;
+    height: auto;
+    border-radius: 5px;
+    margin-bottom: 20px;
+}
+
+/* Стили для описания фильма */
+.film-description {
+    margin-bottom: 20px;
+}
+
+
+/* Основные стили для раздела подбора фильмов */
+#film-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.film-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    padding: 10px;
+    transition: box-shadow 0.3s ease;
+}
+
+.film-card:hover {
+    box-shadow: 0 4px 8px rgba(40, 212, 117, 0.582);
+}
+
+.film-card h3 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    height: 60px; /* Фиксированная высота для названия фильма */
+    overflow: hidden;
+}
+
+.film-card p1 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    height: 30px; /* Фиксированная высота для описания фильма */
+    overflow: hidden;
+}
+
+.film-card p2 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    height: 69px; /* Фиксированная высота для описания фильма */
+    overflow: hidden;
+}
+
+.film-card p3 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+    height: 55px; /* Фиксированная высота для описания фильма */
+    overflow: hidden;
+}
+
+.film-card img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 5px;
+    margin-top: -30px;
+}
+
+.button-container {
+    margin-top: 10px; /* Отступ кнопок отнизу карточки */
+}
+
+.select-film {
+    margin-right: 10px;
+}
+
+
+/* Основные стили для формы входа */
+.login-container {
+    text-align: center;
+    margin-top: -350px;
+}
+
+.login-container h2 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.login-form {
+    width: 300px;
+    margin: 0 auto;
+}
+
+/* Стили для поля ввода */
+.login-form input[type="text"],
+.login-form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+}
+
+/* Стили для кнопки входа */
+.login-form button[type="submit"] {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #5f5c5c;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.login-form button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* Стиль главной страницы */
+.home-container {
+    text-align: center;
+    margin-top: -350px;
+}
+
+.login-section {
+    width: 300px;
+    margin: 0 auto;
+}
+
+.login-form input[type="text"],
+.login-form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.login-form button[type="submit"],
+.register-link {
+    background-color: #007bff;
+    color: #fff;
+    border: 1px solid #585757;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.login-form button[type="submit"]:hover,
+.register-link:hover {
+    background-color: #0056b3;
+}
+
+/* Стиль регистрации */
+.register-container {
+    padding: 20px; /* Добавляем отступы внутри контейнера */
+    box-sizing: border-box; /* Включаем отступы и границы в ширину контейнера */
+}
+
+.register-form {
+    width: 300px;
+    margin: 0 auto;
+}
+
+.register-form input[type="text"],
+.register-form input[type="email"],
+.register-form input[type="password"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.register-button {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.register-button:hover {
+    background-color: #0056b3;
+}
+
+/* Стиль выхода */
+.logout-container {
+    text-align: center;
+    margin-top: -350px;
+}
+
+.logout-container h2 {
+    font-size: 2rem;
+    color: var(--primary-color);
+    margin-bottom: 20px;
+}
+
+.logout-container p {
+    font-size: 1.125rem;
+    color: #686565;
+}
+
+/* Основные стили для навигации */
+nav {
+    background-color: #333; /* Цвет фона навигации */
+    padding: 10px 20px; /* Внутренний отступ */
+    display: flex; /* Используем Flexbox */
+    justify-content: space-between; /* Разделяем элементы по краям */
+    align-items: center; /* Выравниваем элементы по центру */
+    flex-wrap: wrap; /* Переносим элементы на новую строку при необходимости */
+}
+
+nav ul {
+    list-style-type: none; /* Убираем маркеры списка */
+    margin: 0;
+    padding: 0;
+    display: flex; /* Используем Flexbox для списка */
+}
+
+nav ul li {
+    margin: 0 10px; /* Внешний отступ между элементами списка */
+}
+
+nav ul li a {
+    color: #fff; /* Цвет текста */
+    text-decoration: none; /* Убираем подчеркивание */
+    padding: 10px 20px; /* Внутренний отступ */
+    border-radius: 5px; /* Закругление углов */
+    transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
+}
+
+nav ul li a:hover {
+    background-color: #575757; /* Цвет фона при наведении */
+}
+
+/* Стили для контейнера поиска */
+.search-container {
+    display: flex; /* Используем Flexbox */
+    align-items: center; /* Выравниваем элементы по центру */
+}
+
+.search-input {
+    padding: 5px 10px; /* Внутренний отступ */
+    border-radius: 5px 0 0 5px; /* Закругление углов слева */
+    border: 1px solid #ccc; /* Граница */
+    width: 200px; /* Ширина */
+    box-sizing: border-box; /* Учитываем границы и внутренний отступ в ширину */
+}
+
+.btn-search {
+    background-color: #007bff; /* Цвет фона кнопки поиска */
+    color: #fff; /* Цвет текста кнопки поиска */
+    border: 1px solid #007bff; /* Граница кнопки поиска */
+    border-radius: 0 5px 5px 0; /* Закругление углов справа */
+    padding: 5px 10px; /* Внутренний отступ */
+    cursor: pointer; /* Изменение курсора при наведении */
+    transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
+    box-sizing: border-box; /* Учитываем границы и внутренний отступ в ширину */
+}
+
+.btn-search:hover {
+    background-color: #0056b3; /* Цвет фона кнопки поиска при наведении */
+    border-color: #0056b3; /* Цвет границы кнопки поиска при наведении */
+}
+
+/* Медиа-запросы для адаптации на средних экранах */
+@media (max-width: 768px) {
+    nav ul {
+        flex-direction: column; /* Вертикальное расположение элементов списка */
+        width: 100%; /* Ширина 100% для списка */
+    }
+
+    nav ul li {
+        margin: 5px 0; /* Внешний отступ между элементами списка */
+        width: 100%; /* Ширина 100% для элементов списка */
+        text-align: center; /* Выравнивание по центру */
+    }
+
+    .search-container {
+        width: 100%; /* Ширина 100% для контейнера поиска */
+        margin-top: 10px; /* Внешний отступ сверху */
+        flex-direction: column; /* Вертикальное расположение */
+    }
+
+    .search-input, .btn-search {
+        width: 100%; /* Ширина 100% для поиска */
+        box-sizing: border-box; /* Включаем границу и внутренний отступ в ширину */
+        border-radius: 5px; /* Закругление углов */
+        margin-top: 5px; /* Внешний отступ сверху для кнопки поиска */
+    }
+}
+
+/* Медиа-запросы для адаптации на маленьких экранах */
+@media (max-width: 480px) {
+    nav {
+        flex-direction: column; /* Вертикальное расположение элементов */
+        align-items: flex-start; /* Выравнивание по левому краю */
+    }
+
+    .btn-search {
+        margin-top: 5px; /* Внешний отступ сверху для кнопки поиска */
+    }
+}
+
+/* Общие стили для кнопок */
+.btn-primary {
+    border-radius: 5px; /* Закругление углов */
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease; /* Плавное изменение свойств */
+}
+
+/* Стили для контейнера карусели */
+#movieCarousel {
+    max-width: 800px;
+    margin: 20px auto;
+}
+
+.carousel-item img {
+    object-fit: cover;
+    height: 500px; /* Установите высоту карусели */
+}

@@ -6,88 +6,114 @@
 {% block title %}{{ viewed_user.username }}'s Profile{% endblock %}
 
 {% block content %}
-<h2>{{ viewed_user.username }}'s Profile</h2>
-{% if viewed_user.photo %}
-    <img src="{{ viewed_user.photo.url }}" alt="{{ viewed_user.username }}'s profile photo" width="250" height="250">
-{% else %}
-    <img src="{% static 'photos_user/default.jpg' %}" alt="Default profile photo" width="250" height="250">
-{% endif %}
+
+<h2 class="profile-username">Профиль {{ viewed_user.username }}</h2>
+<div class="profile-photo-container">
+    {% if viewed_user.photo %}
+        <img src="{{ viewed_user.photo.url }}" alt="{{ viewed_user.username }}'s profile photo" class="profile-photo">
+    {% else %}
+        <img src="{% static 'photos_user/default.jpg' %}" alt="Default profile photo" class="profile-photo">
+    {% endif %}
+</div>
+
 
 {% if is_friend %}
-<form method="post" action="{% url 'users:send_film_invitation' viewed_user.id %}">
-    {% csrf_token %}
-    <button type="submit">Invite to Select Film</button>
-</form>
+    <div class="invite-form-container">
+        <form method="post" action="{% url 'users:send_film_invitation' viewed_user.id %}">
+            {% csrf_token %}
+            <button type="submit" class="invite-button">Invite to Select Film</button>
+        </form>
+    </div>
 {% endif %}
 
+
+
 {% if viewed_user == user %}
-    <h3>Change Profile Photo</h3>
-    <form method="post" enctype="multipart/form-data">
+    <h6 id="change-photo-toggle">Изменить фото профиля</h6>
+    <form method="post" enctype="multipart/form-data" id="photo-upload-form">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Upload Photo</button>
+        <div class="input-group mb-3">
+            <input type="file" name="photo" class="form-control" id="inputGroupFile04" aria-describedby="inputGroupFileAddon04" aria-label="Загрузка">
+            <button class="btn btn-outline-secondary" type="submit" id="inputGroupFileAddon04">Загрузить</button>
+        </div>
     </form>
 {% endif %}
 
+
 {% if user != viewed_user %}
     {% if is_friend %}
-        <p>You are friends with {{ viewed_user.username }}.</p>
-        <form method="post" action="{% url 'users:remove_friend' viewed_user.id %}">
-            {% csrf_token %}
-            <button type="submit">Remove Friend</button>
-        </form>
+        <p class="friend-status">You are friends with {{ viewed_user.username }}.</p>
+        <div class="form-container">
+            <form method="post" action="{% url 'users:remove_friend' viewed_user.id %}">
+                {% csrf_token %}
+                <button type="submit" class="button">Remove Friend</button>
+            </form>
+        </div>
     {% elif sent_request %}
-        <p>Friend request sent to {{ viewed_user.username }}.</p>
+        <p class="friend-status">Friend request sent to {{ viewed_user.username }}.</p>
     {% elif received_request %}
-        <form method="post" action="{% url 'users:accept_friend_request' received_request.id %}">
-            {% csrf_token %}
-            <button type="submit">Accept Friend Request</button>
-        </form>
+        <div class="form-container">
+            <form method="post" action="{% url 'users:accept_friend_request' received_request.id %}">
+                {% csrf_token %}
+                <button type="submit" class="button">Accept Friend Request</button>
+            </form>
+        </div>
     {% else %}
-        <form method="post" action="{% url 'users:send_friend_request' viewed_user.id %}">
-            {% csrf_token %}
-            <button type="submit">Send Friend Request</button>
-        </form>
+        <div class="form-container">
+            <form method="post" action="{% url 'users:send_friend_request' viewed_user.id %}">
+                {% csrf_token %}
+                <button type="submit" class="button">Send Friend Request</button>
+            </form>
+        </div>
     {% endif %}
 {% endif %}
 
+
 <h3>Друзья</h3>
-<ul>
+<div class="friends-list">
     {% for friend in friends %}
-        <li>
-            <img src="{{ friend.photo.url }}" alt="{{ friend.username }}'s profile photo" width="250" height="250">
+        <div class="friend-item">
+            <img src="{{ friend.photo.url }}" alt="{{ friend.username }}'s profile photo" width="100" height="100">
             <a href="{% url 'users:user_profile' user_id=friend.id %}">{{ friend.username }}</a>
-        </li>
+        </div>
     {% endfor %}
-</ul>
+</div>
+
 
 <h3>Фильмы для просмотра сегодня</h3>
-{% for watch_today_film in watch_today_films %}
-    <div>
-        <img src="{{ watch_today_film.poster_url }}" alt="{{ watch_today_film.film_name }} Poster" width="200">
-        <p><a href="{% url 'films:film_detail' film_id=watch_today_film.film_id %}">{{ watch_today_film.film_name }}</a></p>
-        {% if viewed_user == user %}
-            <form method="post">
-                {% csrf_token %}
-                <input type="hidden" name="action" value="mark_watched">
-                <input type="hidden" name="film_id" value="{{ watch_today_film.id }}">
-                <button type="submit">Просмотрено</button>
-            </form>
-        {% endif %}
-    </div>
-{% empty %}
-    <p>На сегодняшний день нет выбранных фильмов для просмотра.</p>
-{% endfor %}
+<div class="watch-today-films">
+    {% for watch_today_film in watch_today_films %}
+        <div class="film-item">
+            <img src="{{ watch_today_film.poster_url }}" alt="{{ watch_today_film.film_name }} Poster" width="200">
+            <p><a href="{% url 'films:film_detail' film_id=watch_today_film.film_id %}">{{ watch_today_film.film_name }}</a></p>
+            {% if viewed_user == user %}
+                <form method="post">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="mark_watched">
+                    <input type="hidden" name="film_id" value="{{ watch_today_film.id }}">
+                    <button type="submit">Просмотрено</button>
+                </form>
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>На сегодняшний день нет выбранных фильмов для просмотра.</p>
+    {% endfor %}
+</div>
+
 
 <h3>Просмотренные фильмы</h3>
-<ul>
-    {% for watched_film in films_watched %}
-        <li>
-            <p><a href="{% url 'films:film_detail' film_id=watched_film.film_id %}">{{ watched_film.film.name }}</a></p>
-            <img src="{{ watched_film.film.poster.url }}" alt="{{ watched_film.film.name }} Poster" width="200">
-        </li>
-    {% endfor %}
-</ul>
+<div class="watched-films-list">
+    <div class="watched-films-grid">
+        {% for watched_film in films_watched %}
+            <div class="watched-film-item">
+                <img src="{{ watched_film.film.poster.url }}" alt="{{ watched_film.film.name }} Poster" width="200">
+                <p><a href="{% url 'films:film_detail' film_id=watched_film.film_id %}">{{ watched_film.film.name }}</a></p>
+            </div>
+        {% empty %}
+            <p>Вы еще не просмотрели ни одного фильма.</p>
+        {% endfor %}
+        </div>
+</div>
 
 {% endblock %}
 

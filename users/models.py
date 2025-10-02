@@ -16,6 +16,9 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username
+    
+    def get_partner(self):
+        return self.partner
 
 class Friendship(models.Model):
     from_user = models.ForeignKey(settings.AUTH_USER_MODEL, related_name='friendship_requests_sent', on_delete=models.CASCADE)

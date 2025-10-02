@@ -1,28 +1,59 @@
 # users/views.py
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import login
-from django.contrib.auth.decorators import login_required
-from django.contrib import messages
-from django.http import HttpResponse
-from django.shortcuts import render, redirect, get_object_or_404
-from .forms import PreferencesForm, RegistrationForm, PartnerSelectionForm, FilmChoiceForm, ProfilePhotoForm
-from films.models import Film, Genre, FilmChoice, WatchedFilm, WatchTodayFilm
-from django.db.models import Count
-from django.db.models import Q
-from django.http import HttpResponseRedirect, HttpResponseBadRequest
-from django.urls import reverse
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from django.views.decorators.http import require_GET
-from django.db import IntegrityError
+import json
 import logging
-from django.conf import settings
+import os
+import random
+import tempfile
 from random import sample
 
-import json
-from .models import User, Notification, Friendship
+from django.conf import settings
+from django.contrib.auth import login
+from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Q
+from django.http import HttpResponseRedirect, JsonResponse
+from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
+from films.models import Film, FilmChoice, Genre, WatchedFilm, WatchTodayFilm
+
+from .forms import (FilmChoiceForm, PartnerSelectionForm, PreferencesForm,
+                    ProfilePhotoForm, RegistrationForm)
+from .models import Friendship, Notification, User
 
 logger = logging.getLogger(__name__)
+
+def home_view(request):
+    # Пользователи
+    users = User.objects.all()
+
+    # Постеры
+    posters_dir = os.path.join(settings.MEDIA_ROOT, 'posters/kp')
+    posters = []
+
+    if os.path.exists(posters_dir):
+        posters_files = os.listdir(posters_dir)
+        print(f"Found files in posters directory: {posters_files}")
+
+        posters = [
+            f"{settings.MEDIA_URL}posters/kp/{file}"
+            for file in posters_files
+            if file.lower().endswith(('jpg', 'jpeg', 'png'))
+        ]
+
+        print(f"Prepared poster URLs: {posters}")
+    else:
+        print(f"Directory does not exist: {posters_dir}")
+
+    posters_json = json.dumps(posters)
+
+    context = {
+        'users': users,
+        'user_id': request.user.id,
+        'posters_json': posters_json,
+    }
+
+    return render(request, 'users/home.html', context)
 
 
 @login_required
@@ -36,7 +67,6 @@ def some_view(request):
     
     return render(request, 'some_template.html', {'user': user, 'notifications': notifications})
 
-
 def register(request):
     if request.method == 'POST':
         form = RegistrationForm(request.POST, request.FILES)
@@ -49,13 +79,13 @@ def register(request):
     return render(request, 'users/register.html', {'form': form})
 
 
-def home(request):
-    users = User.objects.all()
-    context = {
-        'users': users,
-        'user_id': request.user.id,  # Передача user_id в шаблон
-    }
-    return render(request, 'users/home.html', context)
+# def home(request):
+#     users = User.objects.all()
+#     context = {
+#         'users': users,
+#         'user_id': request.user.id,  # Передача user_id в шаблон
+#     }
+#     return render(request, 'users/home.html', context)
 
 @login_required
 def send_friend_request(request, user_id):
@@ -106,7 +136,6 @@ def remove_friend(request, friend_id):
 
     # Перенаправляем пользователя на свой профиль
     return redirect('users:user_profile', user_id=request.user.id)
-
 
 @login_required
 def search_users(request):
@@ -207,9 +236,7 @@ def user_profile(request, user_id):
     }
     return render(request, 'users/user_profile.html', context)
 
-
 def partner_selection(request):
-    # Предположим, что у вас есть логика для получения списка партнеров
     partners = User.objects.all()
 
     if request.method == 'POST':
@@ -217,15 +244,15 @@ def partner_selection(request):
         if form.is_valid():
             selected_partner_id = form.cleaned_data['partner']
             # Добавьте логику, если необходимо сохранить выбранного партнера
-            # Перенаправление на следующую страницу
-            return redirect('users:preferences')  # Замените 'users:genre_selection' на ваш реальный URL
+            return redirect('users:preferences')
     else:
         form = PartnerSelectionForm()
-        partner = None  # Добавьте эту строку
 
-    return render(request, 'users/partner_selection.html', {'partners': partners, 'form': form})
-
-
+    return render(request, 'users/partner_selection.html', {
+        'partners': partners,
+        'form': form,
+        'MEDIA_URL': settings.MEDIA_URL  # <-- добавляем MEDIA_URL
+    })
 
 def preferences(request, partner_id):
     partner = User.objects.get(id=partner_id)
@@ -310,7 +337,6 @@ def check_for_match(request):
         return matching_film_ids
     return None
 
-
 @csrf_exempt
 @login_required
 def confirm_match(request):
@@ -364,41 +390,53 @@ def confirm_match_result(request, film_id=None):
     film = get_object_or_404(Film, id=film_id)
 
     # Устанавливаем флаг совпадения по умолчанию как False
-    matched = False
+    matched = True
 
     # Проверяем, существует ли совпадение с данным фильмом
     if FilmChoice.objects.filter(film=film, matched=True).exists():
         matched = True
 
+    # Вывод отладочной информации
+    print(f"Film: {film}")
+    print(f"Matched: {matched}")
+
+    match = FilmChoice.objects.filter(film_id=film_id, selection='yes').exclude(user=request.user).first()
+
     # Если пользователь отправил POST-запрос (нажал на кнопку), обрабатываем действие
     if request.method == 'POST':
         selection = request.POST.get('selection')
-        if selection == 'yes':
-            # Обработка нажатия кнопки "Буду смотреть"
-            # Создаем запись о фильме для просмотра сегодня
-            watch_today_film = WatchTodayFilm.objects.create(
-                user=request.user,
-                film=film,
-                film_name=film.name,
-                poster_url=film.poster.url
-            )
+        if selection in ['yes', 'no']:
+            if selection == 'yes':
+                # Обработка нажатия кнопки "Буду смотреть"
+                watch_today_film = WatchTodayFilm.objects.create(
+                    user=request.user,
+                    film=film,
+                    film_name=film.name,
+                    poster_url=film.poster.url
+                )
 
-            # Обновляем поле film после создания записи
-            watch_today_film.film = film
-            watch_today_film.save()
+                # Обновляем поле film после создания записи
+                watch_today_film.film = film
+                watch_today_film.save()
 
-            return JsonResponse({'success': True, 'action': 'user_profile', 'user_id': request.user.id})
-        elif selection == 'no':
-            return JsonResponse({'success': True, 'action': 'film_selection'})
+                
+                # Отправка уведомления партнеру
+                create_selection_notification(request.user, film, selection, match.user)
+
+                return JsonResponse({'success': True, 'action': 'user_profile', 'user_id': request.user.id})
+
+            elif selection == 'no':
+                # Отправка уведомления партнеру
+                create_selection_notification(request.user, film, selection, match.user)
+
+                return JsonResponse({'success': True, 'action': 'film_selection'})
 
     return render(request, 'users/confirm_match_result.html', {'matched': matched, 'matching_film': film})
-
 
 def get_selected_film_based_on_preferences(preferences):
     genre = preferences.get('genre')
     selected_film = Film.objects.filter(genre__name=genre).first()
     return selected_film
-
 
 def get_all_films(selected_genres=None):
     # Логика получения всех фильмов из вашей базы данных
@@ -413,7 +451,6 @@ def get_all_films(selected_genres=None):
 def get_user_viewed_films(user):
     # Логика получения истории просмотров пользователя из вашей базы данных
     return user.viewed_films.all()
-
 
 @csrf_exempt
 def check_match(request):
@@ -455,8 +492,6 @@ def check_match(request):
     response_data = {'matched': False}
     return JsonResponse(response_data, status=200)
 
-
-
 @login_required
 def check_notifications(request):
     user = request.user
@@ -478,7 +513,6 @@ def check_notifications(request):
     print(f"Found notifications for user {user.username}: {list(notifications)}")
 
     return JsonResponse({'notifications': list(notifications)})
-
 
 
 def create_match_notification(user, title, body, url):
@@ -524,6 +558,22 @@ def create_film_selection_request_notification(sender, receiver):
         body=f'{sender.username} приглашает вас вместе выбрать фильм.',
         is_match_notification=False
     )
+
+def create_selection_notification(user, film, selection, partner):
+    # Определение текста уведомления в зависимости от выбора
+    if selection == 'yes':
+        Notification.objects.create(
+            user=partner,  # Используем partner вместо user
+            title='Фильм выбран для просмотра!',
+            body=f'{user.username} будет смотреть фильм {film.name} сегодня.'
+        )
+    elif selection == 'no':
+        Notification.objects.create(
+            user=partner,  # Используем partner вместо user
+            title='Выбран другой фильм.',
+            body=f'{user.username} решил выбрать другой фильм вместо {film.name}.'
+        )
+
 
 @login_required
 @require_GET

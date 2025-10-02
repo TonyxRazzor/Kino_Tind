@@ -1,6 +1,62 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <style>
+        /* Основные стили для кнопок */
+        .action-btn {
+            color: #fff; /* Цвет текста */
+            border: none; /* Убираем границы */
+            padding: 10px 20px; /* Поля вокруг текста */
+            border-radius: 5px; /* Закругление углов */
+            cursor: pointer; /* Изменение курсора при наведении */
+            transition: background-color 0.3s ease; /* Плавное изменение цвета фона */
+            margin: 5px; /* Отступ между кнопками */
+        }
+
+        .watch-btn {
+            background-color: #1ad82aa8; /* Цвет фона */
+        }
+
+        .watch-btn:hover {
+            background-color: #c2e9128c; /* Цвет фона при наведении */
+        }
+
+        .another-btn {
+            background-color: #505fe6c0; /* Цвет фона */
+        }
+
+        .another-btn:hover {
+            background-color: #bc50e693; /* Цвет фона при наведении */
+        }
+
+        /* Стили для контейнера с фильмом */
+        .film-details {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .film-details img {
+            margin-top: 10px;
+            border-radius: 10px; /* Закругление углов постера */
+        }
+
+        /* Медиа-запросы для маленьких экранов */
+        @media (max-width: 600px) {
+            .action-btn {
+                width: 40%; /* Кнопки занимают всю ширину контейнера */
+                padding: 15px; /* Увеличение внутреннего отступа */
+                font-size: 16px; /* Увеличение размера текста */
+            }
+
+            .film-details img {
+                width: 90%; /* Изображение занимает всю ширину контейнера */
+                max-width: 85%; /* Устанавливаем максимальную ширину изображения */
+                height: auto; /* Автоматическая высота изображения */
+            }
+        }
+    </style>
+
+<div class="film-details">
     <h2>Результат подтверждения совпадения</h2>
 
     {% if matched %}
@@ -15,15 +71,16 @@
         </p>
         <p>Страна: {{ matching_film.country }}</p>
         {% if matching_film.poster %}
-            <img src="{{ matching_film.poster.url }}" alt="{{ matching_film.name }} Poster" width="250">
+            <img src="{{ matching_film.poster.url }}" alt="{{ matching_film.name }} Poster">
         {% endif %}
         
         {% csrf_token %}
 
-        <button id="watch-btn" class="action-btn" data-selection="yes" data-film-id="{{ matching_film.id }}" data-action="watch">Буду смотреть</button>
-        <button id="another-btn" class="action-btn" data-selection="no" data-film-id="{{ matching_film.id }}" data-action="another">Выберу другой</button>
+        <button id="watch-btn" class="action-btn watch-btn" data-selection="yes" data-film-id="{{ matching_film.id }}" data-action="watch">Буду смотреть</button>
+        <button id="another-btn" class="action-btn another-btn" data-selection="no" data-film-id="{{ matching_film.id }}" data-action="another">Выберу другой</button>
 
     {% else %}
         <p>{{ error_message }}</p>
     {% endif %}
+</div>
 {% endblock %}

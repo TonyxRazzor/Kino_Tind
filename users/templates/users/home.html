@@ -1,21 +1,66 @@
 <!-- users/templates/users/home.html -->
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
-    <h2>Добро пожаловать на главную страницу</h2>
+
+<!-- Блок приветствия и авторизации -->
+<div class="home-container container mt-5 mb-5">
+    <h2 class="mb-4">Добро пожаловать на главную страницу</h2>
 
     {% if user.is_authenticated %}
-        <p>Привет, {{ user.username }}!</p>
-        <a href="{% url 'users:logout' %}">Выйти</a>
-        <!-- Здесь вы можете добавить другие приветственные сообщения для авторизованного пользователя -->
+        <p class="mb-3">Привет, {{ user.username }}!</p>
+        <a href="{% url 'users:logout' %}" class="btn btn-primary mb-4">Выйти</a>
     {% else %}
-        <h3>Авторизация</h3>
-        <form method="post" action="{% url 'users:login' %}">
-            {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit">Войти</button>
-        </form>
-
-        <p>Еще не зарегистрированы? <a href="{% url 'users:register' %}">Зарегистрируйтесь</a></p>
+        <div class="login-section mb-4">
+            <h3>Авторизация</h3>
+            <form method="post" action="{% url 'users:login' %}" class="login-form">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-primary">Войти</button>
+            </form>
+            <p class="mt-2">Еще не зарегистрированы? <a href="{% url 'users:register' %}">Зарегистрируйтесь</a></p>
+        </div>
     {% endif %}
+</div>
+
+<!-- Карусель постеров -->
+<div class="carousel-container container mb-5">
+    <div id="movieCarousel" class="carousel slide" data-bs-ride="carousel">
+        <div class="carousel-inner" id="carouselInner"></div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#movieCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#movieCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
+        </button>
+    </div>
+</div>
+
+<!-- Скрипт добавления слайдов -->
+<script>
+    const posters = JSON.parse('{{ posters_json|default:"[]"|escapejs }}');
+    console.log("Parsed Posters:", posters);
+
+    const carouselInner = document.getElementById('carouselInner');
+    posters.forEach((poster, index) => {
+        const item = document.createElement('div');
+        item.className = `carousel-item ${index === 0 ? 'active' : ''}`;
+
+        const img = document.createElement('img');
+        img.src = poster;
+        img.className = 'd-block mx-auto'; // центрируем по горизонтали
+        img.alt = `Poster ${index + 1}`;
+        img.style.maxHeight = '500px';     // максимальная высота
+        img.style.width = 'auto';          // сохраняем пропорции
+        img.style.objectFit = 'contain';   // показываем полностью без обрезки
+
+        item.appendChild(img);
+        carouselInner.appendChild(item);
+    });
+</script>
+
 {% endblock %}

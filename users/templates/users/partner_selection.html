@@ -2,17 +2,21 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <h2>Страница выбора партнера</h2>
+    <div class="partner-selection-container">
+        <h2>Страница выбора партнера</h2>
 
-    <p>Выберите из списка:</p>
-    <ul>
-        {% for partner in partners %}
-        <li>
-            <a href="{% url 'users:preferences' partner.id %}">
-                <img src="{{ partner.photo.url }}" alt="{{ partner.username }}'s photo" width="50" height="50">
-                {{ partner.username }}
-            </a>
-        </li>
-        {% endfor %}
-    </ul>
+        <p>Выберите из списка:</p>
+        <ul class="partner-list">
+            {% for partner in partners %}
+            <li>
+                <a href="{% url 'users:preferences' partner.id %}">
+                    <img src="{% if partner.photo %}{{ partner.photo.url }}{% else %}{{ MEDIA_URL }}user_photos/default.jpg{% endif %}" 
+                        alt="{{ partner.username }}'s photo" 
+                        class="partner-photo">
+                    {{ partner.username }}
+                </a>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}

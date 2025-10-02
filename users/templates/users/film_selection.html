@@ -11,14 +11,14 @@
                         <h3>
                             <a href="{% url 'films:film_detail' film.id %}">{{ film.name }}</a>
                         </h3>
-                        <p>Год выпуска: {{ film.year }}</p>
-                        <p>Жанр: 
+                        <p1>Год выпуска: {{ film.year }}</p1>
+                        <p2>Жанр: 
                             {% for genre in item.genres %}
                                 {{ genre.name }}
                                 {% if not forloop.last %}, {% endif %}
                             {% endfor %}
-                        </p>
-                        <p>Страна: {{ film.country }}</p>
+                        </p2>
+                        <p3>Страна: {{ film.country }}</p3>
 
                         {% if film.poster %}
                             <img src="{{ film.poster.url }}" alt="{{ film.name }} Poster" width="200">
@@ -44,6 +44,7 @@
         <p>Извините, нет доступных фильмов.</p>
     {% endif %}
 {% endblock %}
+
 
 <!-- {% block extra_js %}
 <script>

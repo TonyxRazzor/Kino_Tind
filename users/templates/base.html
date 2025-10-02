@@ -1,14 +1,24 @@
 {% load static %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}My Site{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-9ndCyUaIbzAi2FUVXJi0CjmCapSmO7SnpJef0486qhLnuZ2cdeRhO02iuK6FUUVM" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/light-theme.css' %}" id="light-theme">
+    <link rel="stylesheet" href="{% static 'css/dark-theme.css' %}" id="dark-theme" media="none">
+    <link rel="stylesheet" href="{% static 'css/custom-styles.css' %}">
+
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'js/notifications.js' %}"></script>
+    <script src="{% static 'js/theme-switcher.js' %}"></script>
+    <script src="{% static 'js/profile.js' %}"></script>
+
     <script type="text/javascript">
         var checkNotificationsUrl = "{% url 'users:check_notifications' %}";
         var checkUserMatchUrl = "{% url 'users:check_user_match' %}";
@@ -20,8 +30,12 @@
 <body>
 
     {% csrf_token %}
+    
 
     <nav>
+        <button id="theme-switcher" class="btn btn-primary">
+            <i id="theme-icon" class="fa"></i> <!-- Иконка будет здесь -->
+        </button>
         <ul>
             <li><a href="{% url 'users:home' %}">Home</a></li>
             {% if user.is_authenticated %}
@@ -38,16 +52,27 @@
                 <li><a href="{% url 'users:register' %}">Register</a></li>
             {% endif %}
         </ul>
-        <form method="get" action="{% url 'users:search_users' %}">
-            <input type="text" name="q" placeholder="Search users...">
-            <button type="submit">Search</button>
-        </form>
+        
+        {% if user.is_authenticated %}
+            <form method="get" action="{% url 'users:search_users' %}" class="search-container">
+                <input type="text" name="q" class="form-control search-input" placeholder="Search users...">
+                <button type="submit" class="btn btn-primary btn-search">Search</button>
+            </form>
+        {% endif %}
     </nav>
 
-    <div>
-        {% block content %}{% endblock %}
-    </div>
 
+    <div class="container center-content">
+        <div class="row">
+            <div class="col-12">
+
+                <div>
+                    {% block content %}{% endblock %}
+                </div>
+
+            </div>
+        </div>
+    </div>
     
     <div class="notifications">
         {% for notification in notifications %}
@@ -56,6 +81,10 @@
     </div>
 
     
+    
+</body>
+</html>
+
     <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script> -->
 
 <!-- {% block extra_js %}

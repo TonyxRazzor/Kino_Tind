@@ -2,7 +2,7 @@
 import os
 import requests
 import json
-
+import time
 
 class Movie:
     def __init__(self, data: dict):
@@ -24,14 +24,17 @@ class Movie:
         self.poster_preview = data['posterUrlPreview']
 
 class SEARCH:
-
     @staticmethod
-    def get_movie_details(token, movie_id):
+    def get_movie_details(token, movie_id, delay=1):
         url = f'https://kinopoiskapiunofficial.tech/api/v2.2/films/{movie_id}'
         headers = {'Content-Type': 'application/json', 'X-API-KEY': token}
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
             return response.json()
+        elif response.status_code == 429:
+            print(f"Rate limit exceeded for movie ID {movie_id}. Retrying after delay...")
+            time.sleep(delay)
+            return SEARCH.get_movie_details(token, movie_id, delay * 2)
         else:
             print(f"Failed to fetch details for movie ID {movie_id}. Status code: {response.status_code}")
             return None
@@ -52,9 +55,10 @@ class SEARCH:
             json.dump(results, f, indent=3, ensure_ascii=False)
 
     @staticmethod
-    def get_popular_movies(token, limit=50):
+    def get_popular_movies(token, limit=50, delay=1):
         try:
             processed_movies = SEARCH.load_results()
+            processed_movie_ids = [m['kp_id'] for m in processed_movies]
             page = 1
             results = []
 
@@ -79,22 +83,25 @@ class SEARCH:
                         print("Warning: Neither 'filmId' nor 'kinopoiskId' found in movie:", movie)
                         continue
 
-                    if movie_id in [m['kp_id'] for m in processed_movies]:
+                    if movie_id in processed_movie_ids:
                         print(f"Movie {movie_id} already processed. Skipping...")
                         continue
 
-                    movie_details = SEARCH.get_movie_details(token, movie_id)
+                    movie_details = SEARCH.get_movie_details(token, movie_id, delay)
                     if movie_details:
                         movie_obj = Movie(movie_details)
                         results.append(movie_obj.__dict__)
+                        processed_movie_ids.append(movie_id)
+                        print(f"Processed movie ID {movie_id}: {movie_obj.name}")
 
                     if len(results) >= limit:
                         break
 
-                total_pages = response_json.get('totalPages')
-                if page == total_pages:
+                total_pages = response_json.get('totalPages', page)
+                if page >= total_pages:
                     break
                 page += 1
+                time.sleep(delay)
 
             SEARCH.save_results(processed_movies + results)
             return "success"
@@ -103,9 +110,10 @@ class SEARCH:
             return str(e)
 
     @staticmethod
-    def get_top_movies(token, limit=50):
+    def get_top_movies(token, limit=50, delay=1):
         try:
             processed_movies = SEARCH.load_results()
+            processed_movie_ids = [m['kp_id'] for m in processed_movies]
             page = 1
             results = []
 
@@ -127,22 +135,25 @@ class SEARCH:
                 for movie in top_movies:
                     movie_id = movie['filmId']
 
-                    if movie_id in [m['kp_id'] for m in processed_movies]:
+                    if movie_id in processed_movie_ids:
                         print(f"Movie {movie_id} already processed. Skipping...")
                         continue
 
-                    movie_details = SEARCH.get_movie_details(token, movie_id)
+                    movie_details = SEARCH.get_movie_details(token, movie_id, delay)
                     if movie_details:
                         movie_obj = Movie(movie_details)
                         results.append(movie_obj.__dict__)
+                        processed_movie_ids.append(movie_id)
+                        print(f"Processed movie ID {movie_id}: {movie_obj.name}")
 
                     if len(results) >= limit:
                         break
 
-                next_page = response_json['pagesCount']
-                if page == next_page:
+                next_page = response_json.get('pagesCount', page)
+                if page >= next_page:
                     break
                 page += 1
+                time.sleep(delay)
 
             SEARCH.save_results(processed_movies + results)
             return "success"
@@ -151,6 +162,6 @@ class SEARCH:
             return str(e)
 
 # Запуск функции для получения данных о топовых фильмах
-SEARCH.get_top_movies('54023ee1-c992-4bfa-b48e-f2e7a6a2b7a4')
+print(SEARCH.get_top_movies('54023ee1-c992-4bfa-b48e-f2e7a6a2b7a4'))
 
-SEARCH.get_popular_movies('54023ee1-c992-4bfa-b48e-f2e7a6a2b7a4')
+print(SEARCH.get_popular_movies('54023ee1-c992-4bfa-b48e-f2e7a6a2b7a4'))
