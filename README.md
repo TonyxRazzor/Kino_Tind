@@ -65,6 +65,17 @@ python manage.py migrate
 python manage.py collectstatic
 ```
 
+**Дать права на чтение**
+```bash
+sudo chown -R tony:www-data /home/tony/Kino_Tind/staticfiles
+sudo chmod -R 755 /home/tony/Kino_Tind/staticfiles
+```
+
+**Открыть доступ к домашней директории**
+```bash
+chmod o+x /home/tony
+```
+
 **Суперпользователь**
 ```bash
 python manage.py createsuperuser
