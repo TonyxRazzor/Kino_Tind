@@ -67,7 +67,7 @@ python manage.py collectstatic
 
 **Суперпользователь**
 ```bash
-python manage.py createsuperuse
+python manage.py createsuperuser
 ```
 ---
 ### Настройка Gunicorn (приложение Django)
